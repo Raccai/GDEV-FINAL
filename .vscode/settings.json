@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "vector": "cpp",
+        "string": "cpp",
+        "iosfwd": "cpp",
+        "xiosbase": "cpp",
+        "xstring": "cpp",
+        "cstdint": "cpp",
+        "xlocale": "cpp",
+        "xlocinfo": "cpp"
+    },
+    "cmake.sourceDirectory": "C:/Users/josee/Desktop/Ateneo Stuff/FINAL/raylib"
+}
