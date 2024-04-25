@@ -54,9 +54,9 @@ int main() {
 
     // Init clouds
     Cloud clouds[MAX_CLOUDS] = {
-        { (Vector2){ 350, 150 }, { { 300, 50 }, { 400, 0 }, { 500, 70 }, { 600, 100 } }, 0.0f, 0.1f, 20, BLUE, LoadTexture("Cloud2.png") },
-        { (Vector2){ 100, 230 }, { { 120, 300 }, { 170, 250 }, { 200, 320 }, { 250, 340 } }, 0.0f, 0.1f, 15, BLUE, LoadTexture("Cloud3.png") },
-        { (Vector2){ 550, 410 }, { { 450, 190 }, { 550, 120 }, { 600, 210 }, { 650, 180 } }, 0.0f, 0.1f, 15, BLUE, LoadTexture("Cloud1.png") },
+        { (Vector2){ 350, 150 }, { { 300, 50 }, { 400, 0 }, { 500, 70 }, { 600, 100 } }, 0.0f, 0.1f, 20, BLUE, LoadTexture("textures/Cloud2.png") },
+        { (Vector2){ 100, 230 }, { { 120, 300 }, { 170, 250 }, { 200, 320 }, { 250, 340 } }, 0.0f, 0.1f, 15, BLUE, LoadTexture("textures/Cloud3.png") },
+        { (Vector2){ 550, 410 }, { { 450, 190 }, { 550, 120 }, { 600, 210 }, { 650, 180 } }, 0.0f, 0.1f, 15, BLUE, LoadTexture("textures/Cloud1.png") },
     };
 
     /*
