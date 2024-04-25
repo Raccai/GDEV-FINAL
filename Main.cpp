@@ -17,6 +17,7 @@
 
 struct Level {
     std::string image_name;
+    std::string background_name;
     std::vector<Rectangle> tiles;
     std::vector<std::vector<int>> grid;
     std::vector<int> impassable; // to edit @whoevernext
@@ -37,23 +38,19 @@ Level loadMap(std::string map_config) {
         if (key == "IMAGE_NAME") {
             iss >> level.image_name;
             level.image_name = "level/" + level.image_name;
+        } else if (key == "BACKGROUND_NAME") {
+            iss >> level.background_name;
+            level.background_name = "level/" + level.background_name;
         } else if (key == "TILE_COUNT") {
             int tileCount;
             iss >> tileCount;
             level.tiles.resize(tileCount);
-            for (int i = 0; i < tileCount; ++i) {
+            for (int i = 1; i <= tileCount; ++i) {
                 std::getline(configFile, line);
                 std::istringstream tileStream(line);
                 int x, y, width, height;
                 tileStream >> x >> y >> width >> height;
                 level.tiles[i] = { (float)x, (float)y, (float)width, (float)height };
-            }
-        } else if (key == "IMPASSABLE") {
-            int impassableCount;
-            iss >> impassableCount;
-            level.impassable.resize(impassableCount);
-            for (int i = 0; i < impassableCount; ++i) {
-                configFile >> level.impassable[i];
             }
         } else if (key == "GRID") {
             iss >> level.grid_width >> level.grid_height;
@@ -82,13 +79,14 @@ int main() {
     InitWindow(screenWidth, screenHeight, "Final Project - Layug, Marcelo, Laurel");
 
     SetTargetFPS(60);
-    std::string map_config = "level2.txt";
+    std::string map_config = "level1.txt";
 
     // Variables from config
     Level level = loadMap(map_config);
 
-    // Init Tiles
-    Texture2D texture = LoadTexture(level.image_name.c_str());
+    // Init Background & Tiles
+    Texture2D background_texture = LoadTexture(level.background_name.c_str());
+    Texture2D tile_texture = LoadTexture(level.image_name.c_str());
     float tileSize = 60.0f;
 
     // Init Player
@@ -139,6 +137,9 @@ int main() {
         
         // Update Player
         player.Update(deltaTime);
+        
+        // Check Player collision with tiles
+        player.position.x;
 
         // Update enemies
         for (int i = 0; i < MAX_ENEMIES; i++) {
@@ -160,9 +161,23 @@ int main() {
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
+        // Draw Background
+        DrawTexture(background_texture, 0, 0, WHITE);
+
         // Draw Platforms
         for (int i = 0; i < MAX_PLATFORMS; i++)
             DrawRectangleRec(platforms[i], GRAY);
+
+        // Draw Tiles
+        for (int i = 0; i < level.grid_height; ++i) {
+            for (int j = 0; j < level.grid_width; ++j) {
+                int tileIndex = level.grid[i][j];
+                if (tileIndex >= 1 && tileIndex <= level.tiles.size()) {
+                    Rectangle dest = { j * tileSize, i * tileSize, tileSize, tileSize };
+                    DrawTexturePro(tile_texture, level.tiles[tileIndex], dest, Vector2{ float(-screenWidth/2 + level.grid_width * tileSize / 2), float(-screenHeight/2 + level.grid_height * tileSize / 2) }, 0.0f, WHITE);
+                }
+            }
+        }
 
         // Draw Power Bar
         DrawRectangleRec(powerBarRect, powerBarColor);
@@ -186,6 +201,9 @@ int main() {
     for (int i = 0; i < MAX_CLOUDS; i++) {
         UnloadTexture(clouds[i].texture);
     }
+    
+    UnloadTexture(background_texture);
+    UnloadTexture(tile_texture);
 
     CloseWindow();
 

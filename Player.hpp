@@ -12,6 +12,7 @@
 
 class Enemy;
 class Player;
+struct Tile;
 
 /*
 struct Player {
@@ -100,8 +101,7 @@ public:
     
     bool IsCollidingEnemy(Enemy& enemy);
 
-    // TODO
-    // bool IsCollidingTerrain(Tile& tile);
+    bool IsCollidingTerrain(Tile& tile);
 
     void TakeDamage(int damage) { health -= damage; }
 
