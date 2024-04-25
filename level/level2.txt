@@ -1,5 +1,5 @@
-BACKGROUND_NAME level1_bg.png
-IMAGE_NAME level1_tile.png
+BACKGROUND_NAME level2_bg.png
+IMAGE_NAME level2_tile.png
 TILE_COUNT 16
 0 0 128 128
 128 0 128 128
