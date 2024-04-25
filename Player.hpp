@@ -74,8 +74,10 @@ public:
 
     Vector2 velocity;
     float speed;
+    float gravity;
 
-    float jumpHoldTime;
+    float jumpStrength;
+    float jumpChargeTime;
 
     PlayerCharging charging;
     PlayerIdle idle;
@@ -92,7 +94,9 @@ public:
 
     void Draw();
 
-    void SetState(PlayerState* new_state );
+    void SetState(PlayerState* new_state);
+
+    void ApplyGravity(float delta_time);
     
     bool IsCollidingEnemy(Enemy& enemy);
 
