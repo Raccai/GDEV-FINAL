@@ -1,5 +1,10 @@
+#include "iostream"
+#include "fstream"
+#include "sstream"
+
 #include "raylib.h"
 #include "raymath.h"
+
 #include "Player.hpp"
 #include "Enemy.hpp"
 #include "Cloud.hpp" // include Cloud header
@@ -8,8 +13,58 @@
 #define MAX_ENEMIES 3
 #define MAX_CLOUDS 3
 
-void menuInit() {
-    // foo
+struct Level {
+    std::string image_name;
+    std::vector<Rectangle> tiles;
+    std::vector<std::vector<int>> grid;
+    std::vector<int> impassable; // to edit @whoevernext
+    int grid_width, grid_height;
+};
+
+Level loadMap(std::string map_config) {
+    Level level;
+    
+    // Parse level file
+    std::ifstream configFile("level/" + map_config);
+    std::string line;
+    while (std::getline(configFile, line)) {
+        // sstream from: https://www.geeksforgeeks.org/stringstream-c-applications/
+        std::istringstream iss(line);
+        std::string key;
+        iss >> key;
+        if (key == "IMAGE_NAME") {
+            iss >> level.image_name;
+            level.image_name = "level/" + level.image_name;
+        } else if (key == "TILE_COUNT") {
+            int tileCount;
+            iss >> tileCount;
+            level.tiles.resize(tileCount);
+            for (int i = 0; i < tileCount; ++i) {
+                std::getline(configFile, line);
+                std::istringstream tileStream(line);
+                int x, y, width, height;
+                tileStream >> x >> y >> width >> height;
+                level.tiles[i] = { (float)x, (float)y, (float)width, (float)height };
+            }
+        } else if (key == "IMPASSABLE") {
+            int impassableCount;
+            iss >> impassableCount;
+            level.impassable.resize(impassableCount);
+            for (int i = 0; i < impassableCount; ++i) {
+                configFile >> level.impassable[i];
+            }
+        } else if (key == "GRID") {
+            iss >> level.grid_width >> level.grid_height;
+            level.grid.resize(level.grid_height, std::vector<int>(level.grid_width));
+            for (int i = 0; i < level.grid_height; ++i) {
+                for (int j = 0; j < level.grid_width; ++j) {
+                    configFile >> level.grid[i][j];
+                }
+            }
+        }
+    }
+
+    return level;
 }
 
 int main() {
@@ -20,11 +75,19 @@ int main() {
 
     */
     
-    const int screenWidth = 800;
-    const int screenHeight = 450;
+    const int screenWidth = 960;
+    const int screenHeight = 720;
+    InitWindow(screenWidth, screenHeight, "Final Project - Layug, Marcelo, Laurel");
 
-    InitWindow(screenWidth, screenHeight, "Jumping Example");
     SetTargetFPS(60);
+    std::string map_config = "level2.txt";
+
+    // Variables from config
+    Level level = loadMap(map_config);
+
+    // Init Tiles
+    Texture2D texture = LoadTexture(level.image_name.c_str());
+    float tileSize = 60.0f;
 
     // Init Player
     Vector2 playerPosition = { (float)screenWidth / 2, (float)screenHeight * 7/8 };
@@ -33,10 +96,11 @@ int main() {
     int playerHealth = 5;
     Player player(playerPosition, {playerSize,playerSize}, playerSpeed, playerHealth); // Provide all five arguments
 
+    // Init Power Bar
     Color powerBarColor = GREEN;
     Rectangle powerBarRect = { 10, screenHeight - 20, 0, 10 };
 
-    // Init Platform
+    // Init Platforms
     Rectangle platforms[MAX_PLATFORMS] = {
         { 0, screenHeight - 30, screenWidth, 30 },
         { 200, screenHeight - 200, 150, 20 },
