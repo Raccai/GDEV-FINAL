@@ -11,6 +11,7 @@ struct Cloud {
     float size; // Size of cloud
     Color color; // Color of the cloud
     Texture2D texture; // Add texture member
+    int direction; // Direction of movement (-1 or 1)
 };
 
 void UpdateCloud(Cloud& cloud, float deltaTime);

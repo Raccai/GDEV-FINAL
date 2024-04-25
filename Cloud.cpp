@@ -1,6 +1,6 @@
 #include "raylib.h"
+#include "raymath.h"
 #include "Cloud.hpp"
-#include <cmath>
 
 // Calculate a point on a bezier curve given control points and t parameter
 Vector2 CalculateBezierPoint(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float t) {
@@ -18,15 +18,21 @@ Vector2 CalculateBezierPoint(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, flo
 }
 
 void UpdateCloud(Cloud& cloud, float deltaTime) {
-    // Update parameter 't' for interpolation
-    cloud.t += cloud.speed * deltaTime;
-    cloud.t = fmod(cloud.t, 1.0f); // Ensure 't' stays within the range [0, 1]
+    // Update parameter 't' for interpolation based on the direction of movement
+    cloud.t += cloud.speed * cloud.direction * deltaTime;
+    
+    // If cloud reaches the end of the curve or the beginning, reverse its direction
+    if (cloud.t >= 1.0f || cloud.t <= 0.0f) {
+        cloud.direction *= -1; // Reverse direction
+    }
+
+    // Ensure 't' stays within the range [0, 1]
+    cloud.t = Clamp(cloud.t, 0.0f, 1.0f);
 
     // Calculate position along bezier curve
     cloud.position = CalculateBezierPoint(cloud.controlPoints[0], cloud.controlPoints[1], 
                                           cloud.controlPoints[2], cloud.controlPoints[3], cloud.t);
 }
-
 
 void DrawCloud(const Cloud& cloud) {
     // Draw cloud texture at its current position
