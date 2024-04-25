@@ -103,6 +103,7 @@ int main() {
     float playerSpeed = 200.0f;
     int playerHealth = 5;
     Player player(playerPosition, {playerSize,playerSize}, playerSpeed, playerHealth, playerHealth);
+    float damageTime = 0.0f;
 
     // Init Power Bar
     Color powerBarColor = GREEN;
@@ -121,7 +122,7 @@ int main() {
     Enemy enemies[MAX_ENEMIES] = {
         { (Vector2){ 100, screenHeight - 440 }, (Vector2){ ENEMY_PATROL_SPEED, 0 }, false, 0 },
         { (Vector2){ 200, screenHeight - 280 }, (Vector2){ ENEMY_PATROL_SPEED, 0 }, false, 1 },
-        { (Vector2){ 700, screenHeight - 230 }, (Vector2){ ENEMY_PATROL_SPEED, 0 }, false, 2 }
+        { (Vector2){ 700, 394 }, (Vector2){ ENEMY_PATROL_SPEED, 0 }, false, 2 }
     };
 
     // Init clouds
@@ -152,7 +153,13 @@ int main() {
             if (CheckCollisionRecs((Rectangle){ player.position.x, player.position.y, player.size.x, player.size.y },
                                 (Rectangle){ enemies[i].position.x, enemies[i].position.y, ENEMY_SIZE.x, ENEMY_SIZE.y })) {
                 // Player-enemy collision detected
-                player.TakeDamage(1); // Reduce player's health
+                std::cout << deltaTime << std::endl;
+                damageTime += deltaTime;
+                std::cout << damageTime << std::endl;
+                if (damageTime >= 1) {
+                    player.TakeDamage(1);
+                    damageTime = 0;
+                }
             }
         }
 
