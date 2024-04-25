@@ -2,9 +2,11 @@
 #include "raymath.h"
 #include "Player.hpp"
 #include "Enemy.hpp"
+#include "Cloud.hpp" // include Cloud header
 
 #define MAX_PLATFORMS 5
 #define MAX_ENEMIES 3
+#define MAX_CLOUDS 3
 
 void menuInit() {
     // foo
@@ -50,6 +52,13 @@ int main() {
         { (Vector2){ 700, screenHeight - 230 }, (Vector2){ ENEMY_PATROL_SPEED, 0 }, false, 2 }
     };
 
+    // Init clouds
+    Cloud clouds[MAX_CLOUDS] = {
+        { (Vector2){ 350, 150 }, { { 300, 50 }, { 400, 0 }, { 500, 70 }, { 600, 100 } }, 0.0f, 0.1f, 20, BLUE, LoadTexture("Cloud2.png") },
+        { (Vector2){ 100, 230 }, { { 120, 300 }, { 170, 250 }, { 200, 320 }, { 250, 340 } }, 0.0f, 0.1f, 15, BLUE, LoadTexture("Cloud3.png") },
+        { (Vector2){ 550, 410 }, { { 450, 190 }, { 550, 120 }, { 600, 210 }, { 650, 180 } }, 0.0f, 0.1f, 15, BLUE, LoadTexture("Cloud1.png") },
+    };
+
     /*
     
         GAME LOOP
@@ -65,8 +74,14 @@ int main() {
         // Update Player
         player.Update(deltaTime);
 
+        // Update enemies
         for (int i = 0; i < MAX_ENEMIES; i++) {
             UpdateEnemy(enemies[i], player, platforms, MAX_PLATFORMS, screenWidth, screenHeight);
+        }
+
+        // Update clouds
+        for (int i = 0; i < MAX_CLOUDS; i++) {
+            UpdateCloud(clouds[i], GetFrameTime());
         }
 
         /*
@@ -93,7 +108,17 @@ int main() {
         for (int i = 0; i < MAX_ENEMIES; i++)
             DrawRectangleV(enemies[i].position, ENEMY_SIZE, RED);
 
+        // Draw clouds
+        for (int i = 0; i < MAX_CLOUDS; i++) {
+            DrawCloud(clouds[i]);
+        }
+
         EndDrawing();
+    }
+
+    // Unload textures
+    for (int i = 0; i < MAX_CLOUDS; i++) {
+        UnloadTexture(clouds[i].texture);
     }
 
     CloseWindow();
