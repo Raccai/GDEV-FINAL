@@ -4,7 +4,7 @@
 #include <ctime>
 
 void UpdateEnemy(Enemy& enemy, const Player& player, Rectangle platforms[], const int MAX_PLATFORMS, const int screenWidth, const int screenHeight) {
-    enemy.velocity.y += PLAYER_GRAVITY * GetFrameTime();
+    // enemy.velocity.y += PLAYER_GRAVITY * GetFrameTime();
 
     enemy.position.x += enemy.velocity.x * GetFrameTime();
     enemy.position.y += enemy.velocity.y * GetFrameTime();

@@ -2,7 +2,11 @@
 #define ENEMY_H
 
 #include "raylib.h"
-#include "Player.hpp" 
+#include "Player.hpp"
+
+class Tile;
+class Enemy;
+class Player;
 
 struct Enemy {
     Vector2 position;

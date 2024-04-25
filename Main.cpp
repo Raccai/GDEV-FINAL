@@ -20,8 +20,9 @@ struct Level {
     std::string background_name;
     std::vector<Rectangle> tiles;
     std::vector<std::vector<int>> grid;
-    std::vector<int> impassable; // to edit @whoevernext
     int grid_width, grid_height;
+    std::vector<int> impassable; 
+    bool isImpassable(int x, int y) const;
 };
 
 Level loadMap(std::string map_config) {
@@ -51,6 +52,13 @@ Level loadMap(std::string map_config) {
                 int x, y, width, height;
                 tileStream >> x >> y >> width >> height;
                 level.tiles[i] = { (float)x, (float)y, (float)width, (float)height };
+            }
+        } else if (key == "IMPASSABLE") {
+            int impassableCount;
+            iss >> impassableCount;
+            level.impassable.resize(impassableCount);
+            for (int i = 0; i < impassableCount; ++i) {
+                configFile >> level.impassable[i];
             }
         } else if (key == "GRID") {
             iss >> level.grid_width >> level.grid_height;
@@ -94,7 +102,7 @@ int main() {
     float playerSize = 20.0f;
     float playerSpeed = 200.0f;
     int playerHealth = 5;
-    Player player(playerPosition, {playerSize,playerSize}, playerSpeed, playerHealth); // Provide all five arguments
+    Player player(playerPosition, {playerSize,playerSize}, playerSpeed, playerHealth, playerHealth);
 
     // Init Power Bar
     Color powerBarColor = GREEN;
@@ -138,6 +146,23 @@ int main() {
         // Update Player
         player.Update(deltaTime);
         
+        // Check Player collision with enemies
+        for (int i = 0; i < MAX_ENEMIES; i++) {
+            if (CheckCollisionRecs((Rectangle){ player.position.x, player.position.y, player.size.x, player.size.y },
+                                (Rectangle){ enemies[i].position.x, enemies[i].position.y, ENEMY_SIZE.x, ENEMY_SIZE.y })) {
+                // Player-enemy collision detected
+                player.TakeDamage(1); // Reduce player's health
+            }
+        }
+
+        // Draw Player Health Bar
+        float healthBarWidth = 200.0f; // Width of the health bar
+        float healthBarHeight = 20.0f; // Height of the health bar
+        Vector2 healthBarPos = { 10, 10 }; // Position of the health bar
+        float healthPercentage = (float)player.health / (float)player.maxHealth;
+        Rectangle healthBarRect = { healthBarPos.x, healthBarPos.y, healthBarWidth * healthPercentage, healthBarHeight };
+        Color healthBarColor = (healthPercentage > 0.5f) ? GREEN : (healthPercentage > 0.2f) ? ORANGE : RED;
+
         // Check Player collision with tiles
         player.position.x;
 
@@ -194,7 +219,16 @@ int main() {
             DrawCloud(clouds[i]);
         }
 
+        // Draw Health bar
+        DrawRectangleRec(healthBarRect, healthBarColor);
+        DrawRectangleLinesEx(healthBarRect, 2, BLACK);
+
         EndDrawing();
+
+        // Close the window if player's health reaches zero
+        if (player.health <= 0) {
+            break;
+        }
     }
 
     // Unload textures
