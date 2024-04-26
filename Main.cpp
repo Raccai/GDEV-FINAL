@@ -218,8 +218,37 @@ int main() {
         Rectangle healthBarRect = { healthBarPos.x, healthBarPos.y, healthBarWidth * healthPercentage, healthBarHeight };
         Color healthBarColor = (healthPercentage > 0.5f) ? GREEN : (healthPercentage > 0.2f) ? ORANGE : RED;
 
-        // Check Player collision with tiles
-        // foo
+        // Check Tile Collisions
+        for (int i = 0; i < level.grid_height; ++i) {
+            for (int j = 0; j < level.grid_width; ++j) {
+                if (level.grid[i][j] > 0) {  // Assume non-zero means there is a tile
+                    Rectangle playerRect = {player.position.x - player.size.x / 2, player.position.y - player.size.y / 2, player.size.x, player.size.y};
+                    Rectangle tileRect = {j * tileSize, i * tileSize, tileSize, tileSize};
+
+                    if (CheckCollisionRecs(playerRect, tileRect)) {
+                        std::cout << "Collision at Tile Index [" << i << "][" << j << "]: " << level.grid[i][j] << std::endl;
+
+                        // Check if the bottom of the player is colliding with the top of the tile
+                        if (playerRect.y + playerRect.height > tileRect.y && playerRect.y < tileRect.y) {
+                            player.position.y = tileRect.y - playerRect.height;  // Adjust player position to the top of the tile
+                            player.velocity.y = 0;
+                            player.SetState(&player.idle);
+                        }
+                        // Check if the top of the player is colliding with the bottom of the tile
+                        else if (playerRect.y < tileRect.y + tileRect.height && playerRect.y + playerRect.height > tileRect.y + tileRect.height) {
+                            player.position.y = tileRect.y + tileRect.height + playerRect.height;  // Adjust player position to the bottom of the tile
+                            player.velocity.y = 0;
+                        }
+
+                        // Invert x velocity when there is a horizontal collision
+                        if ((playerRect.x < tileRect.x + tileRect.width && playerRect.x + playerRect.width > tileRect.x) ||
+                            (playerRect.x + playerRect.width > tileRect.x && playerRect.x < tileRect.x + tileRect.width)) {
+                            player.velocity.x = -player.velocity.x;  // Invert x velocity
+                        }
+                    }
+                }
+            }
+        }
 
         // Update enemies
         for (int i = 0; i < MAX_ENEMIES; i++) {
