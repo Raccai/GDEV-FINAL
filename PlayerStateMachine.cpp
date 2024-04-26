@@ -37,7 +37,6 @@ void Player::SetState(PlayerState* new_state) {
 }
 
 void Player::ApplyGravity(float delta_time) {
-    // TODO: change and compute tile collisions
     velocity.y += gravity * speed * delta_time; // should clamp this value
     position.y += velocity.y * delta_time; // should clamp this value
 }
@@ -132,15 +131,15 @@ void PlayerMoving::Update(Player& player, float delta_time) {
     if (IsKeyDown(KEY_D)) player.velocity.x += 1;
 
     if (player.velocity.x != 0) {
-        player.velocity = Vector2Normalize(player.velocity);
-        player.velocity = Vector2Scale(player.velocity, player.speed);
+        player.velocity.x *= player.speed;
     }
 
-    // TODO: COMPUTE FOR GRAVITY
+    player.velocity.y -= player.gravity;
 
-    player.position = Vector2Add(player.position, Vector2Scale(player.velocity, delta_time));
+    player.position.x += player.velocity.x * delta_time;
 
-    if (Vector2Length(player.velocity) == 0) {
+    if (player.velocity.x == 0) {
+        player.SetState(&player.jumping);
         player.SetState(&player.idle);
     } else if (IsKeyDown(KEY_SPACE)) {    
         player.SetState(&player.charging);

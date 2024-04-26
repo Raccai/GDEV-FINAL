@@ -133,7 +133,7 @@ int main() {
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Final Project - Layug, Marcelo, Laurel");
 
     SetTargetFPS(60);
-    std::string map_config = "level1.txt";
+    std::string map_config = "level2.txt";
 
     // Variables from config
     Level level = loadMap(map_config);
