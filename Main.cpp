@@ -8,6 +8,7 @@
 #include "Player.hpp"
 #include "Enemy.hpp"
 #include "Cloud.hpp" // include Cloud header
+#include "GameUI.hpp"
 
 #include <vector>
 
@@ -15,14 +16,17 @@
 #define MAX_ENEMIES 3
 #define MAX_CLOUDS 4
 
+#define WINDOW_WIDTH 960
+#define WINDOW_HEIGHT 720
+
 struct Level {
     std::string image_name;
     std::string background_name;
     std::vector<Rectangle> tiles;
     std::vector<std::vector<int>> grid;
     int grid_width, grid_height;
-    std::vector<int> impassable; 
-    bool isImpassable(int x, int y) const;
+    float chest_x, chest_y, chest_size;
+    std::vector<int> impassable;
 };
 
 Level loadMap(std::string map_config) {
@@ -53,13 +57,8 @@ Level loadMap(std::string map_config) {
                 tileStream >> x >> y >> width >> height;
                 level.tiles[i] = { (float)x, (float)y, (float)width, (float)height };
             }
-        } else if (key == "IMPASSABLE") {
-            int impassableCount;
-            iss >> impassableCount;
-            level.impassable.resize(impassableCount);
-            for (int i = 0; i < impassableCount; ++i) {
-                configFile >> level.impassable[i];
-            }
+        } else if (key == "CHEST_DETAILS") {
+            iss >> level.chest_x >> level.chest_y >> level.chest_size;
         } else if (key == "GRID") {
             iss >> level.grid_width >> level.grid_height;
             level.grid.resize(level.grid_height, std::vector<int>(level.grid_width));
@@ -74,6 +73,55 @@ Level loadMap(std::string map_config) {
     return level;
 }
 
+// Based on a GDev 41 submission from last semester (coded by one of the group members)
+void endGame(bool win, int health) {
+    Color defaultColor = GRAY;
+    Color hoverColor = LIGHTGRAY;
+    Color clickedColor = DARKGRAY;
+
+    UiLibrary uiLibrary;
+
+    std::string header;
+    std::string subtext;
+
+    if (win) {
+        header = "Congratulations!";
+        subtext = "You won with " + std::to_string(health) + " health!";
+    } else {
+        header = "Sorry,";
+        subtext = "You died.";
+    }
+
+    bool end = false;
+    float rotation = 0.0f;
+
+    while (!WindowShouldClose() && !end) {
+        rotation += 0.2f;
+
+        BeginDrawing();
+        ClearBackground(WHITE);
+
+        // Polygon shapes and lines
+        // from: https://www.raylib.com/examples/shapes/loader.html?name=shapes_basic_shapes
+        DrawPoly((Vector2){ WINDOW_WIDTH/2.0f, WINDOW_HEIGHT / 2.6 }, 6, 230, rotation, BROWN);
+        DrawPolyLines((Vector2){ WINDOW_WIDTH/2.0f, WINDOW_HEIGHT / 2.6 }, 6, 240, rotation, BROWN);
+        DrawPolyLinesEx((Vector2){ WINDOW_WIDTH/2.0f, WINDOW_HEIGHT / 2.6 }, 6, 235, rotation, 6, BEIGE);
+
+        // Draw text
+        DrawText(header.c_str(), WINDOW_WIDTH / 2 - MeasureText(header.c_str(), 30) / 2, WINDOW_HEIGHT / 3, 30, WHITE);
+        DrawText(TextFormat(subtext.c_str()),
+                 WINDOW_WIDTH / 2 - MeasureText(subtext.c_str(), 20) / 2,
+                 WINDOW_HEIGHT / 2.5, 20, WHITE);
+
+        // Draw "Done" button
+        if (uiLibrary.Button(0, "Done", {WINDOW_WIDTH / 2 - 100, WINDOW_HEIGHT - 120, 200, 60}, defaultColor, hoverColor, clickedColor)) {
+            end = true;
+        }
+
+        EndDrawing();
+    }
+}
+
 int main() {
     
     /*
@@ -82,9 +130,7 @@ int main() {
 
     */
     
-    const int screenWidth = 960;
-    const int screenHeight = 720;
-    InitWindow(screenWidth, screenHeight, "Final Project - Layug, Marcelo, Laurel");
+    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Final Project - Layug, Marcelo, Laurel");
 
     SetTargetFPS(60);
     std::string map_config = "level1.txt";
@@ -95,10 +141,11 @@ int main() {
     // Init Background & Tiles
     Texture2D background_texture = LoadTexture(level.background_name.c_str());
     Texture2D tile_texture = LoadTexture(level.image_name.c_str());
+    Texture2D chest_texture = LoadTexture("textures/chest.gif");
     float tileSize = 60.0f;
 
     // Init Player
-    Vector2 playerPosition = { (float)screenWidth / 2, (float)screenHeight * 7/8 };
+    Vector2 playerPosition = { (float)WINDOW_WIDTH / 2, (float)WINDOW_HEIGHT * 7/8 };
     float playerSize = 20.0f;
     float playerSpeed = 200.0f;
     int playerHealth = 5;
@@ -107,21 +154,21 @@ int main() {
 
     // Init Power Bar
     Color powerBarColor = GREEN;
-    Rectangle powerBarRect = { 10, screenHeight - 20, 0, 10 };
+    Rectangle powerBarRect = { 10, WINDOW_HEIGHT - 20, 0, 10 };
 
     // Init Platforms
     Rectangle platforms[MAX_PLATFORMS] = {
-        { 0, screenHeight - 30, screenWidth, 30 },
-        { 200, screenHeight - 200, 150, 20 },
-        { 400, screenHeight - 300, 150, 20 },
-        { 600, screenHeight - 150, 150, 20 },
-        { 100, screenHeight - 400, 150, 20 }
+        { 0, WINDOW_HEIGHT - 30, WINDOW_WIDTH, 30 },
+        { 200, WINDOW_HEIGHT - 200, 150, 20 },
+        { 400, WINDOW_HEIGHT - 300, 150, 20 },
+        { 600, WINDOW_HEIGHT - 150, 150, 20 },
+        { 100, WINDOW_HEIGHT - 400, 150, 20 }
     };
 
     // Init Enemies
     Enemy enemies[MAX_ENEMIES] = {
-        { (Vector2){ 100, screenHeight - 440 }, (Vector2){ ENEMY_PATROL_SPEED, 0 }, false, 0 },
-        { (Vector2){ 200, screenHeight - 280 }, (Vector2){ ENEMY_PATROL_SPEED, 0 }, false, 1 },
+        { (Vector2){ 100, WINDOW_HEIGHT - 440 }, (Vector2){ ENEMY_PATROL_SPEED, 0 }, false, 0 },
+        { (Vector2){ 200, WINDOW_HEIGHT - 280 }, (Vector2){ ENEMY_PATROL_SPEED, 0 }, false, 1 },
         { (Vector2){ 700, 394 }, (Vector2){ ENEMY_PATROL_SPEED, 0 }, false, 2 }
     };
 
@@ -156,7 +203,7 @@ int main() {
                 std::cout << deltaTime << std::endl;
                 damageTime += deltaTime;
                 std::cout << damageTime << std::endl;
-                if (damageTime >= 1) {
+                if (damageTime >= 0.75) {
                     player.TakeDamage(1);
                     damageTime = 0;
                 }
@@ -172,11 +219,11 @@ int main() {
         Color healthBarColor = (healthPercentage > 0.5f) ? GREEN : (healthPercentage > 0.2f) ? ORANGE : RED;
 
         // Check Player collision with tiles
-        player.position.x;
+        // foo
 
         // Update enemies
         for (int i = 0; i < MAX_ENEMIES; i++) {
-            UpdateEnemy(enemies[i], player, platforms, MAX_PLATFORMS, screenWidth, screenHeight);
+            UpdateEnemy(enemies[i], player, platforms, MAX_PLATFORMS, WINDOW_WIDTH, WINDOW_HEIGHT);
         }
 
         // Update clouds
@@ -207,13 +254,15 @@ int main() {
                 int tileIndex = level.grid[i][j];
                 if (tileIndex >= 1 && tileIndex <= level.tiles.size()) {
                     Rectangle dest = { j * tileSize, i * tileSize, tileSize, tileSize };
-                    DrawTexturePro(tile_texture, level.tiles[tileIndex], dest, Vector2{ float(-screenWidth/2 + level.grid_width * tileSize / 2), float(-screenHeight/2 + level.grid_height * tileSize / 2) }, 0.0f, WHITE);
+                    DrawTexturePro(tile_texture, level.tiles[tileIndex], dest, Vector2{ float(-WINDOW_WIDTH/2 + level.grid_width * tileSize / 2), float(-WINDOW_HEIGHT/2 + level.grid_height * tileSize / 2) }, 0.0f, WHITE);
                 }
             }
         }
 
-        // Draw Power Bar
-        DrawRectangleRec(powerBarRect, powerBarColor);
+        // Draw chest
+        Rectangle chest_source = {0.0f, 0.0f, (float) chest_texture.width, (float) chest_texture.height};
+        Rectangle chest_dest = {level.chest_x, level.chest_y, level.chest_size * 1.4f, level.chest_size};
+        DrawTexturePro(chest_texture, chest_source, chest_dest, {0.0f, 0.0f}, 0.0f, WHITE);
 
         // Draw Player
         DrawRectangleV(player.position, player.size, player.color);
@@ -235,6 +284,14 @@ int main() {
 
         // Close the window if player's health reaches zero
         if (player.health <= 0) {
+            endGame(false, 0);
+            break;
+        }
+
+        // Detect win if player hit the chest
+        Rectangle rec_player = {player.position.x, player.position.y, player.size.x, player.size.y};
+        if (CheckCollisionRecs(chest_dest, rec_player)) {
+            endGame(true, player.health);
             break;
         }
     }
@@ -246,6 +303,7 @@ int main() {
     
     UnloadTexture(background_texture);
     UnloadTexture(tile_texture);
+    UnloadTexture(chest_texture);
 
     CloseWindow();
 

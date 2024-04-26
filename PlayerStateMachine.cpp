@@ -38,12 +38,12 @@ void Player::SetState(PlayerState* new_state) {
 
 void Player::ApplyGravity(float delta_time) {
     // TODO: change and compute tile collisions
-    if (position.y <= 394) {
+    if (position.y <= 100) {
         velocity.y += gravity * speed * delta_time; // should clamp this value
         position.y += velocity.y * delta_time; // should clamp this value
     } else {
         velocity = {0, 0};
-        position.y = 394;
+        position.y = 100;
     }
 }
 
