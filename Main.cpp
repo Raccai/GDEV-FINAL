@@ -13,7 +13,7 @@
 #include <vector>
 
 #define MAX_PLATFORMS 5
-#define MAX_ENEMIES 3
+#define MAX_ENEMIES 5
 #define MAX_CLOUDS 4
 
 #define WINDOW_WIDTH 960
@@ -133,7 +133,7 @@ int main() {
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Final Project - Layug, Marcelo, Laurel");
 
     SetTargetFPS(60);
-    std::string map_config = "level2.txt";
+    std::string map_config = "level1.txt";
 
     // Variables from config
     Level level = loadMap(map_config);
@@ -167,9 +167,11 @@ int main() {
 
     // Init Enemies
     Enemy enemies[MAX_ENEMIES] = {
-        { (Vector2){ 100, WINDOW_HEIGHT - 440 }, (Vector2){ ENEMY_PATROL_SPEED, 0 }, false, 0 },
-        { (Vector2){ 200, WINDOW_HEIGHT - 280 }, (Vector2){ ENEMY_PATROL_SPEED, 0 }, false, 1 },
-        { (Vector2){ 700, 394 }, (Vector2){ ENEMY_PATROL_SPEED, 0 }, false, 2 }
+        { (Vector2){ 100, WINDOW_HEIGHT - 120 }, (Vector2){ ENEMY_PATROL_SPEED, 0 }, false, 0 },
+        { (Vector2){ 200, WINDOW_HEIGHT - 120 }, (Vector2){ ENEMY_PATROL_SPEED, 0 }, false, 1 },
+        { (Vector2){ 300, WINDOW_HEIGHT - 120 }, (Vector2){ ENEMY_PATROL_SPEED, 0 }, false, 2 },
+        { (Vector2){ 400, WINDOW_HEIGHT - 120 }, (Vector2){ ENEMY_PATROL_SPEED, 0 }, false, 2 },
+        { (Vector2){ 500, WINDOW_HEIGHT - 120 }, (Vector2){ ENEMY_PATROL_SPEED, 0 }, false, 2 }
     };
 
     // Init clouds
@@ -203,7 +205,7 @@ int main() {
                 std::cout << deltaTime << std::endl;
                 damageTime += deltaTime;
                 std::cout << damageTime << std::endl;
-                if (damageTime >= 0.75) {
+                if (damageTime >= 0.25) {
                     player.TakeDamage(1);
                     damageTime = 0;
                 }
