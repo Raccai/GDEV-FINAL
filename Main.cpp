@@ -145,7 +145,7 @@ int main() {
     float tileSize = 60.0f;
 
     // Init Player
-    Vector2 playerPosition = { (float)WINDOW_WIDTH / 2, (float)WINDOW_HEIGHT * 7/8 };
+    Vector2 playerPosition = { (float)WINDOW_WIDTH / 2, (float)WINDOW_HEIGHT - tileSize };
     float playerSize = 20.0f;
     float playerSpeed = 200.0f;
     int playerHealth = 5;
@@ -167,7 +167,7 @@ int main() {
 
     // Init Enemies
     Enemy enemies[MAX_ENEMIES] = {
-        { (Vector2){ 100, WINDOW_HEIGHT - 120 }, (Vector2){ ENEMY_PATROL_SPEED, 0 }, false, 0 },
+        { (Vector2){ 0, WINDOW_HEIGHT - 30 }, (Vector2){ ENEMY_PATROL_SPEED, 0 }, false, 0 },
         { (Vector2){ 200, WINDOW_HEIGHT - 120 }, (Vector2){ ENEMY_PATROL_SPEED, 0 }, false, 1 },
         { (Vector2){ 300, WINDOW_HEIGHT - 120 }, (Vector2){ ENEMY_PATROL_SPEED, 0 }, false, 2 },
         { (Vector2){ 400, WINDOW_HEIGHT - 120 }, (Vector2){ ENEMY_PATROL_SPEED, 0 }, false, 2 },
@@ -189,8 +189,6 @@ int main() {
     */
 
     while (!WindowShouldClose()) {
-        // TODO: Check win conditions here
-
         // Calculate delta time
         float deltaTime = GetFrameTime();
         
@@ -202,10 +200,10 @@ int main() {
             if (CheckCollisionRecs((Rectangle){ player.position.x, player.position.y, player.size.x, player.size.y },
                                 (Rectangle){ enemies[i].position.x, enemies[i].position.y, ENEMY_SIZE.x, ENEMY_SIZE.y })) {
                 // Player-enemy collision detected
-                std::cout << deltaTime << std::endl;
+                // std::cout << deltaTime << std::endl;
                 damageTime += deltaTime;
-                std::cout << damageTime << std::endl;
-                if (damageTime >= 0.25) {
+                // std::cout << damageTime << std::endl;
+                if (damageTime >= 0.50) {
                     player.TakeDamage(1);
                     damageTime = 0;
                 }
@@ -228,7 +226,7 @@ int main() {
                     Rectangle tileRect = {j * tileSize, i * tileSize, tileSize, tileSize};
 
                     if (CheckCollisionRecs(playerRect, tileRect)) {
-                        std::cout << "Collision at Tile Index [" << i << "][" << j << "]: " << level.grid[i][j] << std::endl;
+                        // std::cout << "Collision at Tile Index [" << i << "][" << j << "]: " << level.grid[i][j] << std::endl;
 
                         // Check if the bottom of the player is colliding with the top of the tile
                         if (playerRect.y + playerRect.height > tileRect.y && playerRect.y < tileRect.y) {

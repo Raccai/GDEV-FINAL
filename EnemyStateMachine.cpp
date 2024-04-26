@@ -4,7 +4,7 @@
 #include <ctime>
 
 void UpdateEnemy(Enemy& enemy, const Player& player, Rectangle platforms[], const int MAX_PLATFORMS, const int screenWidth, const int screenHeight) {
-    // enemy.velocity.y += PLAYER_GRAVITY * GetFrameTime();
+    enemy.velocity.y -= player.gravity * GetFrameTime();
 
     enemy.position.x += enemy.velocity.x * GetFrameTime();
     enemy.position.y += enemy.velocity.y * GetFrameTime();
@@ -50,7 +50,7 @@ void UpdateEnemy(Enemy& enemy, const Player& player, Rectangle platforms[], cons
     // If the timer reaches 0, change direction and reset the timer with a new random interval
     if (enemy.changeDirectionTimer <= 0) {
         enemy.velocity.x = 0; // Pause
-        enemy.changeDirectionInterval = (float)(rand() % 5 + 1); // Random interval between 1 and 5 seconds
+        enemy.changeDirectionInterval = (float)(rand() % 3 + 1); // Random interval between 1 and 3 seconds
         enemy.changeDirectionTimer = (int)(enemy.changeDirectionInterval * 60); // Reset the timer
     } else {
         enemy.changeDirectionTimer -= 1; // Decrease timer

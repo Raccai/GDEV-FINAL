@@ -74,10 +74,6 @@ public:
     void SetState(PlayerState* new_state);
 
     void ApplyGravity(float delta_time);
-    
-    bool IsCollidingEnemy(Enemy& enemy);
-
-    bool IsCollidingTerrain(Tile& tile);
 
     void TakeDamage(int damage) { health -= damage; }
 

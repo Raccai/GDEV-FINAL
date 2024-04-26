@@ -27,8 +27,6 @@ void Player::Update(float delta_time) {
 
 void Player::Draw() {
     DrawRectangleV(position, size, color);
-
-    // TODO: Check if we draw the player charging meter
 }
 
 void Player::SetState(PlayerState* new_state) {
@@ -37,18 +35,8 @@ void Player::SetState(PlayerState* new_state) {
 }
 
 void Player::ApplyGravity(float delta_time) {
-    velocity.y += gravity * speed * delta_time; // should clamp this value
-    position.y += velocity.y * delta_time; // should clamp this value
-}
-
-bool Player::IsCollidingEnemy(Enemy& enemy) {
-
-    return false;// No collision occurred
-}
-
-bool Player::IsCollidingTerrain(Tile& tile) {
-    // Implement collision detection with terrain
-    return false;
+    velocity.y += gravity * speed * delta_time;
+    position.y += velocity.y * delta_time;
 }
 
 /*
@@ -80,7 +68,7 @@ void PlayerMoving::Enter(Player& player) {
 */
 
 void PlayerCharging::Update(Player& player, float delta_time) {
-    std::cout << "PlayerCharging: " << player.jumpStrength << std::endl;
+    // std::cout << "PlayerCharging: " << player.jumpStrength << std::endl;
 
     player.jumpChargeTime += delta_time;
     
@@ -99,7 +87,7 @@ void PlayerCharging::Update(Player& player, float delta_time) {
 }
 
 void PlayerIdle::Update(Player& player, float delta_time) {
-    std::cout << "PlayerIdle" << std::endl;
+    // std::cout << "PlayerIdle" << std::endl;
     if ((IsKeyDown(KEY_A) || IsKeyDown(KEY_D)) && !((IsKeyDown(KEY_A) && IsKeyDown(KEY_D)))) {
         player.SetState(&player.moving);
     }
@@ -109,7 +97,7 @@ void PlayerIdle::Update(Player& player, float delta_time) {
 }
 
 void PlayerJumping::Update(Player& player, float delta_time) {
-    std::cout << "PlayerJumping: (" << player.velocity.x << ", " << player.velocity.y << ")" << std::endl;
+    // std::cout << "PlayerJumping: (" << player.velocity.x << ", " << player.velocity.y << ")" << std::endl;
     
     // Update player's position based on velocity
     player.position = Vector2Add(player.position, Vector2Scale(player.velocity, delta_time));
@@ -124,7 +112,7 @@ void PlayerJumping::Update(Player& player, float delta_time) {
 }
 
 void PlayerMoving::Update(Player& player, float delta_time) {
-    std::cout << "PlayerMoving" << std::endl;
+    // std::cout << "PlayerMoving" << std::endl;
     player.velocity = Vector2Zero();
 
     if (IsKeyDown(KEY_A)) player.velocity.x -= 1;
